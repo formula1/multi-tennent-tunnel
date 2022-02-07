@@ -1,0 +1,17 @@
+# Possible issues
+- Since I'm allowing passwordless authentication, the server may be vulnerable
+  - but if they have access to the server they could just
+    - `docker ps`
+    - `docker exec -it -u 0 docker_container bash`
+  - so it may not matter so long as I don't expose the port to the firewall
+    - perhaps I should use a very unique port since 2222 seems patternish
+- Multiple ssh connections to the same host using the same user
+- I need to ssh into the original server
+  - then I need to ssh into the proxy-tunnel server
+    - from there I can forward my port
+  - It seems as though I can pass a sock as an option
+    - This may mean I can use the original sock to do my next business
+  - for now it's just local so I only need to connect to 127.0.0.1:2222
+- Two tunneled people may use the same port
+  - Luckily [I can use `0` as a port](https://github.com/mscdex/ssh2/blob/master/lib/client.js#L1253)
+  - From there, the port *should* not be taken in the proxy-tunnel-server
