@@ -1,0 +1,52 @@
+version: "3.9"
+services:
+  hostname-resolver:
+    user: "node"
+    command: "npm run dev-watch"
+    image: node:16
+    working_dir: "/home/node/app"
+    environment:
+      - SHELL=/bin/bash
+      - WORKDIR=/home/node/app
+    volumes:
+      - "./node_modules/hostname-resolver:/home/node/app"
+    links:
+      - tunnel-proxy
+
+  tunnel-proxy:
+    build: server.dockerfile
+    working_dir: /home/node/app
+    environment:
+      - SHELL=/bin/bash
+      - WORKDIR=/home/node/app
+    volumes:
+      - "./:/home/node/app"
+      - type: volume
+        source: readdata
+        target: /data
+        read_only: true
+    ports:
+      - "5000:80"
+  test-ssh:
+    image: lscr.io/linuxserver/openssh-server
+    container_name: test-ssh
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+      - PASSWORD_ACCESS=true
+      - USER_NAME=localdev
+      - USER_PASSWORD=hello-world
+      - SUDO_ACCESS=true
+    volumes:
+      - "./hidden/test-ssh/config:/config"
+    links:
+      - dev-proxy
+    ports:
+      - "2223:2222"
+volumes:
+  public-ssh-keys:
+    type: bind
+    source: ${YOUR_PUBLIC_SSH_KEY_FILE}?err
+    target: /home/localdev/.ssh/authorized_keys
+    readonly: true
