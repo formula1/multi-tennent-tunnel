@@ -66,4 +66,4 @@ buck-out/
 
 
 # Dist should only be on the compiled branch
-/dist
+**/dist
